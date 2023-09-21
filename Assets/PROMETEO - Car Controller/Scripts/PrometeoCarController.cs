@@ -340,7 +340,6 @@ public class PrometeoCarController : MonoBehaviour
       frontLeftCollider.steerAngle = Mathf.Lerp(frontLeftCollider.steerAngle, steeringAngle, steeringSpeed);
       frontRightCollider.steerAngle = Mathf.Lerp(frontRightCollider.steerAngle, steeringAngle, steeringSpeed);
 
-        Debug.LogError("reseting wheel");
     }
 
     void AnimateWheelMeshes(){
