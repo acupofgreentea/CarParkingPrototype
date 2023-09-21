@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.Events;
 
 namespace SimpleInputNamespace
 {
@@ -26,6 +27,8 @@ namespace SimpleInputNamespace
 		public float Value { get { return m_value; } }
 
 		public float Angle { get { return wheelAngle; } }
+
+		public static event UnityAction<float> OnSteeringRotate;
 
 		private void Awake()
 		{
@@ -65,6 +68,7 @@ namespace SimpleInputNamespace
 					wheelAngle -= deltaAngle;
 				else
 					wheelAngle += deltaAngle;
+
 			}
 
 			// Rotate the wheel image
@@ -72,6 +76,7 @@ namespace SimpleInputNamespace
 
 			m_value = wheelAngle * valueMultiplier / maximumSteeringAngle;
 			axis.value = m_value;
+			OnSteeringRotate?.Invoke(axis.value);
 		}
 
 		public void OnPointerDown( PointerEventData eventData )
