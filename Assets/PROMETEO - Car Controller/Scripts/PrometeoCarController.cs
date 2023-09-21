@@ -82,6 +82,9 @@ public class PrometeoCarController : MonoBehaviour
       WheelFrictionCurve RRwheelFriction;
       float RRWextremumSlip;
 
+
+      private bool acceptInput;
+
     void Start()
     {
       carRigidbody = gameObject.GetComponent<Rigidbody>();
@@ -151,8 +154,32 @@ public class PrometeoCarController : MonoBehaviour
         CarControllerUI.BrakeButtonPressing += HandleBrakeButtonPressing;
         CarControllerUI.GasButtonPressing += HandleGasButtonPressing;
         CarControllerUI.HandBrakeButtonPressing += HandleHandBrakeButtonPressing;
+
+        ParkingSlotManager.OnParkingSuccessful += DisableInput;
+
+        EnableInput();
     }
 
+    void OnDestroy()
+    {
+        SteeringWheel.OnSteeringRotate -= HandleSteeringRotate;
+        CarControllerUI.BrakeButtonPressing -= HandleBrakeButtonPressing;
+        CarControllerUI.GasButtonPressing -= HandleGasButtonPressing;
+        CarControllerUI.HandBrakeButtonPressing -= HandleHandBrakeButtonPressing;
+        ParkingSlotManager.OnParkingSuccessful -= DisableInput;
+    }
+
+  private void EnableInput()
+  {
+    acceptInput = true;
+    carRigidbody.isKinematic = false;
+  }
+
+  private void DisableInput()
+  {
+    acceptInput = false;
+    carRigidbody.isKinematic = true;
+  }
     private void HandleHandBrakeButtonPressing()
     {
         isPressingHandBrake = true;
@@ -192,6 +219,11 @@ public class PrometeoCarController : MonoBehaviour
 
     void Update()
     {
+
+      if(!acceptInput)
+        return;
+
+      
       carSpeed = (2 * Mathf.PI * frontLeftCollider.radius * frontLeftCollider.rpm * 60) / 1000;
       localVelocityX = transform.InverseTransformDirection(carRigidbody.velocity).x;
       localVelocityZ = transform.InverseTransformDirection(carRigidbody.velocity).z;

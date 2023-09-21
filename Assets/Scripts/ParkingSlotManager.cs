@@ -36,8 +36,13 @@ public class ParkingSlotManager : MonoBehaviour
         currentParkingSlot.GetComponent<MeshRenderer>().enabled = true;
     }
 
+    private bool isParkingCompleted = false;
+
     private void Update()
     {
+        if(isParkingCompleted)
+            return;
+        
         if(Vector3.Distance(playerCar.position, currentParkingSlot.transform.position) < distanceTreshold)
         {
             Vector3 carForward = playerCar.forward;
@@ -47,6 +52,7 @@ public class ParkingSlotManager : MonoBehaviour
             if(Mathf.Abs(Vector3.Dot(carForward, distanceForward)) > dotTreshold)
             {
                 OnParkingSuccessful?.Invoke();
+                isParkingCompleted = true;
                 Debug.LogError("parking is successful");
             }
         }
