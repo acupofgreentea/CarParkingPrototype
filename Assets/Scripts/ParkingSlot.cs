@@ -1,18 +1,21 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class ParkingSlot : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    private MeshRenderer _renderer;
+
+    void Awake()
     {
-        
+        _renderer = GetComponent<MeshRenderer>();
+    }
+    public void EnableMeshRenderer(bool enable)
+    {
+        _renderer.enabled = enable;
     }
 
-    // Update is called once per frame
-    void Update()
+    public void HandleOnSelectedCurrent()
     {
-        
+        EnableMeshRenderer(true);
+        GetComponent<Target>().IsActiveTarget = true;
     }
 }

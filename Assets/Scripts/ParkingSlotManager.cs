@@ -17,9 +17,9 @@ public class ParkingSlotManager : MonoBehaviour
 
     private void Start()
     {
-        for (int i = 0; i < parkingSlots.Count; i++)
+        foreach (ParkingSlot slot in parkingSlots)
         {
-            parkingSlots[i].GetComponent<MeshRenderer>().enabled = false;
+            slot.EnableMeshRenderer(false);
         }
 
         for (int i = 0; i < parkedCars.Count; i++)
@@ -33,7 +33,7 @@ public class ParkingSlotManager : MonoBehaviour
 
         currentParkingSlot = parkingSlots[Random.Range(0, parkingSlots.Count)];
 
-        currentParkingSlot.GetComponent<MeshRenderer>().enabled = true;
+        currentParkingSlot.HandleOnSelectedCurrent();
     }
 
     private bool isParkingCompleted = false;
