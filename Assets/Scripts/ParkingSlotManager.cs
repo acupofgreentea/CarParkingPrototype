@@ -7,7 +7,7 @@ public class ParkingSlotManager : MonoBehaviour
     [SerializeField] private List<ParkingSlot> parkingSlots;
 
     [SerializeField] private List<Transform> parkedCars;
-    [SerializeField] private Transform playerCar;
+    [SerializeField] private PrometeoCarController playerCar;
 
     [SerializeField] private float distanceTreshold = 1;
     [SerializeField] private float dotTreshold = 0.95f;
@@ -27,7 +27,9 @@ public class ParkingSlotManager : MonoBehaviour
             var slot = parkingSlots[Random.Range(0, parkingSlots.Count)];
             parkingSlots.Remove(slot);
 
-            parkedCars[i].transform.position = slot.transform.position;    
+            Vector3 carPos = slot.transform.position;
+            carPos.y += 0.3f;
+            parkedCars[i].transform.position = carPos;    
             parkedCars[i].transform.localEulerAngles = slot.transform.localEulerAngles;    
         }
 
@@ -37,16 +39,20 @@ public class ParkingSlotManager : MonoBehaviour
     }
 
     private bool isParkingCompleted = false;
+    [SerializeField] private float velocityTreshold = 30f;
 
     private void Update()
     {
         if(isParkingCompleted)
             return;
+
+        if(playerCar.CarSpeed >= velocityTreshold)
+            return;
         
-        if(Vector3.Distance(playerCar.position, currentParkingSlot.transform.position) < distanceTreshold)
+        if(Vector3.Distance(playerCar.transform.position, currentParkingSlot.transform.position) < distanceTreshold)
         {
-            Vector3 carForward = playerCar.forward;
-            Vector3 distanceForward = currentParkingSlot.transform.position - playerCar.position;
+            Vector3 carForward = playerCar.transform.forward;
+            Vector3 distanceForward = currentParkingSlot.transform.position - playerCar.transform.position;
             distanceForward = distanceForward.normalized;
 
             if(Mathf.Abs(Vector3.Dot(carForward, distanceForward)) > dotTreshold)

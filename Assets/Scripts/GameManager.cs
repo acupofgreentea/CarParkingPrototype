@@ -8,6 +8,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Transform player;
     [SerializeField] private Transform[] startPositions;
 
+    private bool isLevelCompleted;
+
     private void Awake()
     {
         Application.targetFrameRate = 60;
@@ -19,13 +21,18 @@ public class GameManager : MonoBehaviour
     {
         var startPos = startPositions[Random.Range(0, startPositions.Length)];
         player.transform.position = startPos.position;
+        player.transform.localEulerAngles = startPos.localEulerAngles;
         
         ParkingSlotManager.OnParkingSuccessful += HandleParkingSlotSuccessful;
         PlayerHealth.OnPlayerDie += HandleOnPlayerDie;
     }
     private void HandleParkingSlotSuccessful()
     {
+        if(isLevelCompleted)
+            return;
+        
         OnLevelCompleted?.Invoke(GetTime(), true);
+        isLevelCompleted = true;
     }
 
     private string GetTime()
@@ -38,13 +45,26 @@ public class GameManager : MonoBehaviour
 
     private void HandleOnPlayerDie()
     {
+        if(isLevelCompleted)
+            return;
+        
         OnLevelCompleted?.Invoke(GetTime(), false);
+
+        isLevelCompleted = true;
     }
 
     private float currentTime = 0.0f;
 
     private void Update()
     {
+        if(isLevelCompleted)
+            return;
+        
         currentTime += Time.deltaTime;
+
+        if(Input.GetKeyDown(KeyCode.F))
+        {
+            ScreenCapture.CaptureScreenshot("SomeLevel.png");
+        }
     }
 }

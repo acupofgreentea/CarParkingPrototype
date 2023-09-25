@@ -5,32 +5,25 @@ using UnityEngine.UI;
 
 public class CarControllerButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
-    private bool isActive;
-
-    public event UnityAction OnButtonPressing;
+    public event UnityAction OnButtonPressed;
+    public event UnityAction OnButtonDePressed;
 
     private Button button;
 
     void Awake()
     {
-        button = GetComponent<Button>();
-    }
-    public void OnPointerDown(PointerEventData eventData)
-    {
-        isActive = true;
-        button.interactable = false;
+        button = GetComponent<Button>(); 
     }
 
-    void Update()
+    public void OnPointerDown(PointerEventData eventData)
     {
-        if(!isActive)
-            return;
-        OnButtonPressing?.Invoke();
+        button.interactable = false;
+        OnButtonPressed?.Invoke();
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        isActive = false;
+        OnButtonDePressed?.Invoke();
         button.interactable = true;
     }
 }

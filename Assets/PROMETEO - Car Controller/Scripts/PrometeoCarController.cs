@@ -151,22 +151,30 @@ public class PrometeoCarController : MonoBehaviour
         }
 
         SteeringWheel.OnSteeringRotate += HandleSteeringRotate;
-        CarControllerUI.BrakeButtonPressing += HandleBrakeButtonPressing;
-        CarControllerUI.GasButtonPressing += HandleGasButtonPressing;
-        CarControllerUI.HandBrakeButtonPressing += HandleHandBrakeButtonPressing;
+        CarControllerUI.OnGasButtonPressed += HandleGasButtonPressed; 
+        CarControllerUI.OnBrakeButtonPressed += HandleBrakeButtonPressed; 
+        CarControllerUI.OnGasButtonDePressed += HandleGasButtonDePressed; 
+        CarControllerUI.OnBrakeButtonDePressed += HandleBrakeButtonDePressed; 
 
-        ParkingSlotManager.OnParkingSuccessful += DisableInput;
+        GameManager.OnLevelCompleted += HandleLevelComplete;
 
         EnableInput();
+    }
+
+    private void HandleLevelComplete(string arg0, bool arg1)
+    {
+        DisableInput();
+        carEngineSound.enabled = false;
     }
 
     void OnDestroy()
     {
         SteeringWheel.OnSteeringRotate -= HandleSteeringRotate;
-        CarControllerUI.BrakeButtonPressing -= HandleBrakeButtonPressing;
-        CarControllerUI.GasButtonPressing -= HandleGasButtonPressing;
-        CarControllerUI.HandBrakeButtonPressing -= HandleHandBrakeButtonPressing;
-        ParkingSlotManager.OnParkingSuccessful -= DisableInput;
+        CarControllerUI.OnGasButtonPressed -= HandleGasButtonPressed; 
+        CarControllerUI.OnBrakeButtonPressed -= HandleBrakeButtonPressed; 
+        CarControllerUI.OnGasButtonDePressed -= HandleGasButtonDePressed; 
+        CarControllerUI.OnBrakeButtonDePressed -= HandleBrakeButtonDePressed; 
+        GameManager.OnLevelCompleted -= HandleLevelComplete;
     }
 
   private void EnableInput()
@@ -180,23 +188,26 @@ public class PrometeoCarController : MonoBehaviour
     acceptInput = false;
     carRigidbody.isKinematic = true;
   }
-    private void HandleHandBrakeButtonPressing()
-    {
-        isPressingHandBrake = true;
-    }
-
-    private void HandleGasButtonPressing()
-    {
-        isPressingGas = true;
-    }
-
-    private void HandleBrakeButtonPressing()
+    private void HandleBrakeButtonPressed()
     {
         isPressingBrake = true;
     }
 
+    private void HandleGasButtonPressed()
+    {
+        isPressingGas = true;
+    }
+    private void HandleBrakeButtonDePressed()
+    {
+        isPressingBrake = false;
+    }
+
+    private void HandleGasButtonDePressed()
+    {
+        isPressingGas = false;
+    }
+
     private bool isPressingGas;
-    private bool isPressingHandBrake;
     private bool isPressingBrake;
     private bool isRotatingWheel;
 
@@ -215,14 +226,14 @@ public class PrometeoCarController : MonoBehaviour
         isRotatingWheel = true;
     }
 
+    public float CarSpeed => carSpeed;
+
     [SerializeField] private bool useButtons;
 
     void Update()
     {
-
       if(!acceptInput)
         return;
-
       
       carSpeed = (2 * Mathf.PI * frontLeftCollider.radius * frontLeftCollider.rpm * 60) / 1000;
       localVelocityX = transform.InverseTransformDirection(carRigidbody.velocity).x;
@@ -233,6 +244,7 @@ public class PrometeoCarController : MonoBehaviour
               if(isPressingGas){
                 CancelInvoke("DecelerateCar");
                 deceleratingCar = false;
+                Debug.Log("going forward");
                 GoForward();
               }
               if(isPressingBrake){
@@ -303,13 +315,11 @@ public class PrometeoCarController : MonoBehaviour
       AnimateWheelMeshes();
     }
 
-    void LateUpdate()
+    private void LateUpdate()
     {
       isRotatingWheel = false;
-      isPressingBrake = false;
-      isPressingGas = false;
-      isPressingHandBrake = false;
     }
+
     public void CarSounds()
     {
       if(useSounds){

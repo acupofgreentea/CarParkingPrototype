@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Cinemachine;
 using UnityEngine;
 
 public class MainMenuCameraController : MonoBehaviour
@@ -24,15 +25,18 @@ public class MainMenuCameraController : MonoBehaviour
     float x = 0.0f;
     float y = 0.0f;
 
-
-    //For smoothness
     float targetx = 0.0f;
     float targety = 0.0f;
     float distance = 5f;
 
+    private bool isActive;
+    private CinemachineVirtualCamera cinemachineVirtualCamera;
 
+    void Awake()
+    {
+        cinemachineVirtualCamera = GetComponent<CinemachineVirtualCamera>();
+    }
 
-    // Use this for initialization
     void Start()
     {
         Vector3 angles = transform.eulerAngles;
@@ -42,23 +46,34 @@ public class MainMenuCameraController : MonoBehaviour
 
     void LateUpdate()
     {
+        if(cinemachineVirtualCamera?.enabled == false)
+        {
+            targetx = 0f;
+            targety = 0f;
+            return;
+        }
+        
         if (target)
         {
-            if (Input.GetMouseButton(0))
+            if (Input.touchCount == 1) // Tek dokunmatik parmak varsa
             {
-                targetx += Input.GetAxis("Mouse X") * xSpeed * distance * 0.02f * (5 / (distance + 2));
-                targety -= Input.GetAxis("Mouse Y") * ySpeed * 0.02f;
+                Touch touch = Input.GetTouch(0);
+
+                if (touch.phase == TouchPhase.Moved)
+                {
+                    targetx += touch.deltaPosition.x * xSpeed * distance * 0.02f * (5 / (distance + 2));
+                    targety -= touch.deltaPosition.y * ySpeed * 0.02f;
+                }
             }
-            
 
             targety = ClampAngle(targety, yMinLimit, yMaxLimit);
 
-            x = Mathf.LerpAngle(x, targetx,0.1f);
+            x = Mathf.LerpAngle(x, targetx, 0.1f);
             y = Mathf.LerpAngle(y, targety, 1f);
 
             Quaternion rotation = Quaternion.Euler(y, x, 0);
 
-            targetdistance = Mathf.Clamp(targetdistance - (Input.GetAxis("Mouse ScrollWheel") *  ScrollSensativity ), distanceMin, distanceMax);
+            targetdistance = Mathf.Clamp(targetdistance - (Input.GetAxis("Mouse ScrollWheel") * ScrollSensativity), distanceMin, distanceMax);
             distance = Mathf.Lerp(distance, targetdistance, 0.1f); //Smooth
 
             RaycastHit hit;
@@ -72,17 +87,6 @@ public class MainMenuCameraController : MonoBehaviour
             transform.rotation = rotation;
 
             transform.position = position;
-        }
-
-
-        //Change fov 
-        if (Input.GetKey(KeyCode.KeypadPlus))
-        {
-            GetComponent<Camera>().fieldOfView += 0.3f;
-        }
-        if (Input.GetKey(KeyCode.KeypadMinus))
-        {
-            GetComponent<Camera>().fieldOfView -= 0.3f;
         }
     }
 
